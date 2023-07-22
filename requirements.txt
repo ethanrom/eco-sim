@@ -2,3 +2,6 @@ plotly
 numpy
 scikit-learn
 streamlit_option_menu
+pandas
+langchain
+openai

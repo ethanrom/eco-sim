@@ -5,6 +5,8 @@ import numpy as np
 from streamlit_option_menu import option_menu
 from markup import app_intro, how_use_intro
 from sklearn.linear_model import LinearRegression
+from default_text import default_text4, default_text5
+from generate_plot import generate_plot, set_openai_api_key
 
 PASSWORD = 'Ethan101'
 
@@ -391,9 +393,43 @@ print("Intercept:", intercept)
         st.error('Invalid password. Access denied.')
 
 
+def tab6():
+    st.header("Auto Plot Generator")
+    st.markdown("Auto Generate code and plot for a given question")
+    password_input = st.text_input('Enter Password', type='password')
+    if authenticate(password_input):
+
+        openai_api_key = st.text_input("Enter your OpenAI API key:")
+
+        main_question = st.text_area("Enter Information here:", height=400, value=default_text4)
+        sub_question = st.text_area("Enter question here:", value=default_text5)
+
+        result = None
+
+        if st.button("Generate Code"):
+            if openai_api_key:
+                set_openai_api_key(openai_api_key)
+                with st.spinner('Thinking...'):
+                    result = generate_plot(main_question, sub_question)
+                st.code(result)
+                st.session_state.generated_code = result
+            else:
+                st.warning("Please enter your OpenAI API key.")
+
+        if st.button("Show Plot"):
+            if 'generated_code' in st.session_state:
+                with st.spinner('Generating Plot...'):
+                    exec(st.session_state.generated_code)
+            else:
+                st.warning("Please generate the code first.")
+
+    else:
+        # Password is incorrect, show an error message
+        st.error('Invalid password. Access denied.')
+
 def main():
     st.set_page_config(page_title="Economic Simulator and Python Coding Tutor", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "Simulate", "Learn about plotly usage", "Building custom plots", "Building Predictive Models"]
+    tabs = ["Intro", "Simulate", "Learn about plotly usage", "Building custom plots", "Building Predictive Models", "AI Plot Generation"]
 
     with st.sidebar:
 
@@ -405,6 +441,7 @@ def main():
     "Learn about plotly usage": tab3,
     "Building custom plots": tab4,
     "Building Predictive Models": tab5,
+    "AI Plot Generation": tab6,
     }
 
     if current_tab in tab_functions:
