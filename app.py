@@ -338,22 +338,32 @@ def tab5():
         model = LinearRegression()
         x_reshaped = x.reshape(-1, 1)
         model.fit(x_reshaped, y)
-        y_pred = model.predict(x_reshaped)
+
+        st.subheader("Interactivity and Model Adjustment:")
+        st.write("You can interact with the chart by adjusting the values of the slope and intercept.")
+        st.write("Changing these parameters will modify the regression line and the predictions.")
+        st.write("Feel free to experiment and observe how the line fits the data differently.")
+
+        # Sliders for slope and intercept
+        slope_slider = st.slider("Slope (Coefficient)", min_value=-10.0, max_value=10.0, value=2.0, step=0.1)
+        intercept_slider = st.slider("Intercept", min_value=-10.0, max_value=10.0, value=3.0, step=0.1)
+
+        # Calculate predictions based on user-adjusted slope and intercept
+        y_pred_adjusted = slope_slider * x + intercept_slider
 
         fig_regression = go.Figure()
         fig_regression.add_trace(go.Scatter(x=x, y=y, mode='markers', name='Data Points'))
-        fig_regression.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name='Regression Line', line=dict(color='red')))
+        fig_regression.add_trace(go.Scatter(x=x, y=y_pred_adjusted, mode='lines', name='Regression Line', line=dict(color='red')))
         fig_regression.update_layout(title='Linear Regression',
                                     xaxis_title='X (Independent Variable)',
                                     yaxis_title='Y (Dependent Variable)')
 
-        with col2:
-            st.plotly_chart(fig_regression)
+        st.plotly_chart(fig_regression)
 
-        st.subheader("Interpreting the Results:")
-        st.write("In linear regression, we try to fit a line to the data points to predict the relationship between X and Y.")
-        st.write("The red line in the plot above is the regression line that best fits the data points.")
-        st.write("We can use this line to make predictions for Y given new values of X.")
+        st.subheader("Interpreting Model Coefficients:")
+        st.write("The slope of the regression line represents how much Y changes for a one-unit increase in X.")
+        st.write("The intercept is the value of Y when X is 0. In our example, the intercept is 3.")
+        st.write("For each unit increase in X, Y increases by the slope you adjusted using the slider.")
 
         st.subheader("Python Code for Linear Regression:")
         code = """
@@ -368,7 +378,12 @@ y = 2 * x + 3 + np.random.randn(10)
 model = LinearRegression()
 x_reshaped = x.reshape(-1, 1)
 model.fit(x_reshaped, y)
-y_pred = model.predict(x_reshaped)
+slope = model.coef_[0]
+intercept = model.intercept_
+
+# Display the coefficients
+print("Slope (Coefficient):", slope)
+print("Intercept:", intercept)
 """
         st.code(code)
     else:
