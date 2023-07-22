@@ -118,9 +118,118 @@ average_income_per_year = np.mean(monthly_income) * 12
         st.error('Invalid password. Access denied.')
 
 
+def tab3():
+    st.header("Python Plotly Coding Tutor")
+
+    password_input = st.text_input('Enter Password', type='password')
+    if authenticate(password_input):
+
+        # Economy-related example data
+        years = np.arange(2010, 2022)
+        gdp = [12500, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
+        unemployment_rate = [8.3, 7.9, 7.2, 6.8, 6.1, 5.6, 5.2, 4.8, 4.3, 4.1, 3.9, 3.7]
+
+        st.subheader("Economy: GDP over the Years")
+        st.write("Below is a plot showing the GDP growth over the years.")
+        
+        # Plotting GDP over the years using Plotly
+        fig_gdp = go.Figure()
+        fig_gdp.add_trace(go.Scatter(x=years, y=gdp, mode='lines+markers', name='GDP'))
+        fig_gdp.update_layout(title='GDP Growth Over the Years',
+                            xaxis_title='Year',
+                            yaxis_title='GDP (Billion USD)')
+
+        # Display Python code and explanation
+        st.write("Python code for GDP plot:")
+        st.code("""
+# Import necessary libraries
+import plotly.graph_objects as go
+import numpy as np
+
+# Sample data for years and GDP
+years = np.arange(2010, 2022)
+gdp = [12500, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
+
+# Create a Plotly figure object
+fig_gdp = go.Figure()
+
+# Add a line plot for GDP data
+fig_gdp.add_trace(go.Scatter(x=years, y=gdp, mode='lines+markers', name='GDP'))
+
+# Customize the plot layout
+fig_gdp.update_layout(title='GDP Growth Over the Years',
+                      xaxis_title='Year',
+                      yaxis_title='GDP (Billion USD)')
+
+# Display the plot
+st.plotly_chart(fig_gdp)
+    """)
+        st.write("This code uses the Plotly library to create an interactive line plot showing the GDP growth over the years. First, we import the necessary libraries, including Plotly and NumPy (for generating sample data). Next, we define the data for the years and the corresponding GDP values. We then create a Plotly figure object (`fig_gdp`) and add a line plot to it using the `go.Scatter` function. The plot is customized with a title and axis labels using the `update_layout` method. Finally, we use `st.plotly_chart` to display the plot in the Streamlit app.")
+
+        # Display the plot
+        st.plotly_chart(fig_gdp)
+
+        st.subheader("Economy: Unemployment Rate over the Years")
+        st.write("Below is a plot showing the unemployment rate over the years.")
+        
+        # Plotting unemployment rate over the years using Plotly
+        fig_unemployment = go.Figure()
+        fig_unemployment.add_trace(go.Scatter(x=years, y=unemployment_rate, mode='lines+markers', name='Unemployment Rate'))
+        fig_unemployment.update_layout(title='Unemployment Rate Over the Years',
+                                    xaxis_title='Year',
+                                    yaxis_title='Unemployment Rate (%)')
+
+        # Display Python code and explanation
+        st.write("Python code for Unemployment Rate plot:")
+        st.code("""
+# Import necessary libraries
+import plotly.graph_objects as go
+import numpy as np
+
+# Sample data for years and unemployment rate
+years = np.arange(2010, 2022)
+unemployment_rate = [8.3, 7.9, 7.2, 6.8, 6.1, 5.6, 5.2, 4.8, 4.3, 4.1, 3.9, 3.7]
+
+# Create a Plotly figure object
+fig_unemployment = go.Figure()
+
+# Add a line plot for unemployment rate data
+fig_unemployment.add_trace(go.Scatter(x=years, y=unemployment_rate, mode='lines+markers', name='Unemployment Rate'))
+
+# Customize the plot layout
+fig_unemployment.update_layout(title='Unemployment Rate Over the Years',
+                               xaxis_title='Year',
+                               yaxis_title='Unemployment Rate (%)')
+
+# Display the plot
+st.plotly_chart(fig_unemployment)
+    """)
+        st.write("This code uses the Plotly library to create an interactive line plot showing the unemployment rate over the years. Similar to the previous example, we import the necessary libraries and define the data for the years and the corresponding unemployment rate. We then create a Plotly figure object (`fig_unemployment`) and add a line plot to it using the `go.Scatter` function. The plot is customized with a title and axis labels using the `update_layout` method. Finally, we use `st.plotly_chart` to display the plot in the Streamlit app.")
+
+        # Display the plot
+        st.plotly_chart(fig_unemployment)
+
+        st.subheader("Try Your Own Plotly Code!")
+        st.write("You can type in your Plotly code below and click the 'Run Code' button to see your plot.")
+        
+        # Code input text area
+        code_input = st.text_area("Type your Plotly code here:")
+
+        # Run button
+        if st.button("Run Code"):
+            try:
+                # Execute the user's code
+                exec(code_input)
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    else:
+        # Password is incorrect, show an error message
+        st.error('Invalid password. Access denied.')
+
 def main():
     st.set_page_config(page_title="Economic Simulator and Python Coding Tutor", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "Simulate"]
+    tabs = ["Intro", "Simulate", "Learn"]
 
     with st.sidebar:
 
@@ -129,6 +238,7 @@ def main():
     tab_functions = {
     "Intro": tab1,
     "Simulate": tab2,
+    "Learn": tab3,
     }
 
     if current_tab in tab_functions:
