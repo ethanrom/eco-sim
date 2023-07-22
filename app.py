@@ -1,158 +1,138 @@
 import streamlit as st
-import numpy as np
 import plotly.graph_objects as go
-from io import StringIO
-import sys
+import json
+import numpy as np
+from streamlit_option_menu import option_menu
+from markup import app_intro, how_use_intro
 
-def simulate_economy(monthly_income, monthly_expenses, start_month, start_year):
-    num_months = len(monthly_income)
-    current_month = start_month
-    current_year = start_year
-    insolvent_count = 0
-    insolvent_months = []
+PASSWORD = 'Ethan101'
 
-    for i in range(num_months):
-        income = monthly_income[i]
-        expenses = monthly_expenses[i]
+def authenticate(password):
+    return password == PASSWORD
 
-        if income < expenses:
-            insolvent_count += 1
-            insolvent_months.append(f"{current_month} {current_year}")
+def tab1():
+    st.header("Economic Simulator and Python Coding Tutor")  
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.image("image.jpg", use_column_width=True)
+    with col2:
+        st.markdown(app_intro(), unsafe_allow_html=True)
+    st.markdown(how_use_intro(),unsafe_allow_html=True) 
 
-        current_month += 1
-        if current_month > 12:
-            current_month = 1
-            current_year += 1
 
-    return insolvent_count, insolvent_months
+    github_link = '[<img src="https://badgen.net/badge/icon/github?icon=github&label">](https://github.com/ethanrom)'
+    huggingface_link = '[<img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue">](https://huggingface.co/ethanrom)'
 
-# Function to validate the monthly income inputs
-def validate_monthly_income(mean, minimum, maximum, std_deviation):
-    if minimum >= maximum:
-        st.error("Error: The minimum income should be less than the maximum income.")
-        return False
-    if mean < minimum or mean > maximum:
-        st.error("Error: The mean income should be within the range of minimum and maximum incomes.")
-        return False
-    return True
+    st.write(github_link + '&nbsp;&nbsp;&nbsp;' + huggingface_link, unsafe_allow_html=True)
 
-# Function to validate the monthly expenses inputs
-def validate_monthly_expenses(monthly_expenses):
-    if len(monthly_expenses) != 12:
-        st.error("Error: Please provide expenses for all 12 months.")
-        return False
-    return True
+def simulate_economy(monthly_individual_income, monthly_individual_expense, start_month, start_year, num_months=12):
+    income_params = json.loads(monthly_individual_income)
+    expense_params = json.loads(monthly_individual_expense)
 
-# Function to get user inputs for monthly individual expenses
-def get_user_expenses_input(start_month, start_year):
-    monthly_individual_expenses = []
-    for month in range(start_month, start_month + 12):
-        monthly_expense = st.number_input(f"{month} {start_year}", value=0)
-        monthly_individual_expenses.append(monthly_expense)
-    return monthly_individual_expenses
+    # Simulate economic data
+    np.random.seed(42)
+    monthly_income = np.random.normal(loc=income_params["mean"], scale=income_params["standarddeviation"], size=num_months)
+    monthly_income = np.clip(monthly_income, income_params["min"], income_params["max"])
+    
+    monthly_expense = np.random.normal(loc=expense_params["mean"], scale=expense_params["standarddeviation"], size=num_months)
+    monthly_expense = np.clip(monthly_expense, expense_params["min"], expense_params["max"])
 
-# Set page title and description
-st.title("Economic Simulator")
-st.markdown(
-    "Welcome to the Economic Simulator app! This app allows you to simulate the financial "
-    "condition of families over time based on monthly individual income and expenses."
-)
+    total_income_per_year = np.sum(monthly_income) * 12
+    average_income_per_year = np.mean(monthly_income) * 12
 
-# Section: Monthly Individual Income
-st.header("Monthly Individual Income")
-st.markdown(
-    "Enter the parameters for monthly individual income below. The simulator will generate "
-    "random income data based on the provided parameters."
-)
+    families_beyond_means = np.sum(monthly_income < monthly_expense)
+    families_paycheck_to_paycheck = np.sum(monthly_income >= monthly_expense)
 
-# Create columns for input fields
-col1, col2, col3 = st.columns(3)
+    return families_beyond_means, families_paycheck_to_paycheck, average_income_per_year, monthly_income, monthly_expense
 
-with col1:
-    mean = st.number_input("Mean", value=4000)
-with col2:
-    minimum = st.number_input("Minimum", value=1200)
-with col3:
-    maximum = st.number_input("Maximum", value=15000)
+def plot_line_chart(data, x_label, y_label, title):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=list(range(len(data))), y=data, mode='lines', name=title))
+    fig.update_layout(title=title, xaxis_title=x_label, yaxis_title=y_label)
+    return fig
 
-std_deviation = st.number_input("Standard Deviation", value=2000)
+def tab2():
 
-# Input validation for monthly individual income
-if validate_monthly_income(mean, minimum, maximum, std_deviation):
+    password_input = st.text_input('Enter Password', type='password')
+    if authenticate(password_input):
 
-    # Section: Monthly Individual Expenses
-    st.header("Monthly Individual Expenses")
-    st.markdown(
-        "Enter the monthly individual expenses for each of the next 12 months below. "
-        "Start by selecting the start month and year."
-    )
+        st.header("User Inputs")
+        monthly_individual_income = st.text_area("Monthly Individual Income (Python code snippet)", value='''{
+        "mean": 4000,
+        "min": 1200,
+        "max": 15000,
+        "standarddeviation": 2000
+        }''')
+        monthly_individual_expense = st.text_area("Monthly Individual Expense (Python code snippet)", value='''{
+        "mean": 4000,
+        "min": 1200,
+        "max": 15000,
+        "standarddeviation": 2000
+        }''')
+        start_month = st.selectbox("Start Month", ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'])
+        start_year = st.number_input("Start Year", min_value=1900, max_value=2100, value=2021)
 
-    # Create columns for input fields
-    start_month = st.select_slider("Start Month", options=list(range(1, 13)), value=1)
-    start_year = st.number_input("Start Year", value=2021)
+        if st.button("Run Simulation"):
+            try:
+                num_months = 12
+                families_beyond_means, families_paycheck_to_paycheck, average_income_per_year, monthly_income, monthly_expense = simulate_economy(monthly_individual_income, monthly_individual_expense, start_month, start_year, num_months)
+                st.header("Simulation Results")
+                st.write(f"Number of families living beyond their means: {families_beyond_means}")
+                st.write(f"Number of families living paycheck to paycheck: {families_paycheck_to_paycheck}")
+                st.write(f"Average income per year: ${average_income_per_year:.2f}")
 
-    # Get user inputs for monthly individual expenses
-    monthly_individual_expenses = get_user_expenses_input(start_month, start_year)
+                st.header("Monthly Income and Expense")
+                income_chart = plot_line_chart(monthly_income, "Month", "Income", "Monthly Individual Income")
+                st.plotly_chart(income_chart)
 
-    # Input validation for monthly individual expenses
-    if validate_monthly_expenses(monthly_individual_expenses):
+                expense_chart = plot_line_chart(monthly_expense, "Month", "Expense", "Monthly Individual Expense")
+                st.plotly_chart(expense_chart)
 
-        # Section: Simulation Results
-        st.header("Simulation Results")
-        st.markdown(
-            "Click the 'Run Simulation' button to perform the simulation based on the provided "
-            "inputs. The simulator will calculate the number of families living beyond their means."
-        )
+                st.header("Code Snippets")
+                st.subheader("Calculation of Number of Families living beyond their means")
+                st.code("""
+import numpy as np
 
-        # Create a single column for the "Run Simulation" button
-        col_simulation = st.columns(1)[0]
-        if col_simulation.button("Run Simulation"):
-            insolvent_count, insolvent_months = simulate_economy(
-                np.random.normal(loc=mean, scale=std_deviation, size=12),
-                monthly_individual_expenses,
-                start_month,
-                start_year
-            )
+# Assuming monthly_income and monthly_expense are numpy arrays
+families_beyond_means = np.sum(monthly_income < monthly_expense)
+                """, language="python")
 
-            st.subheader("Families living beyond their means (insolvent)")
-            st.write(f"Number of Insolvent Families: {insolvent_count}")
-            st.write("Insolvent Months:", ", ".join(insolvent_months))
+                st.subheader("Calculation of Number of Families living paycheck to paycheck")
+                st.code("""
+import numpy as np
 
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=[f"{month} {start_year}" for month in range(start_month, start_month + 12)],
-                                     y=monthly_individual_expenses,
-                                     mode='lines',
-                                     name='Expenses'))
-            fig.update_layout(title='Monthly Individual Expenses',
-                              xaxis_title='Month',
-                              yaxis_title='Expenses')
-            st.plotly_chart(fig)
+# Assuming monthly_income and monthly_expense are numpy arrays
+families_paycheck_to_paycheck = np.sum(monthly_income >= monthly_expense)
+                """, language="python")
 
-        # Section: Output
-        st.header("Output")
-        st.markdown(
-            "In the following section, you can enter Python code and click 'Run Code' to execute it. "
-            "The output will be displayed below."
-        )
+                st.subheader("Calculation of Average income per year")
+                st.code(f"""
+# Assuming monthly_income is a numpy array
+average_income_per_year = np.mean(monthly_income) * 12
+                """, language="python")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
-        # Create columns for the code input and "Run Code" button
-        col_code_input, col_run_code = st.columns(2)
+    else:
+        # Password is incorrect, show an error message
+        st.error('Invalid password. Access denied.')
 
-        with col_code_input:
-            code_input = st.text_area("Enter Python code", value='', height=200)
 
-        with col_run_code:
-            if st.button("Run Code"):
-                stdout = sys.stdout
-                sys.stdout = StringIO()
+def main():
+    st.set_page_config(page_title="Economic Simulator and Python Coding Tutor", page_icon=":memo:", layout="wide")
+    tabs = ["Intro", "Simulate"]
 
-                try:
-                    exec(code_input)
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
+    with st.sidebar:
 
-                output = sys.stdout.getvalue()
-                sys.stdout = stdout
+        current_tab = option_menu("Select a Tab", tabs, menu_icon="cast")
 
-                if output:
-                    st.code(output)
+    tab_functions = {
+    "Intro": tab1,
+    "Simulate": tab2,
+    }
+
+    if current_tab in tab_functions:
+        tab_functions[current_tab]()
+
+if __name__ == "__main__":
+    main()
