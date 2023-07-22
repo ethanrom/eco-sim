@@ -4,6 +4,7 @@ import json
 import numpy as np
 from streamlit_option_menu import option_menu
 from markup import app_intro, how_use_intro
+from sklearn.linear_model import LinearRegression
 
 PASSWORD = 'Ethan101'
 
@@ -306,9 +307,78 @@ fig_custom.update_layout(title='{y_axis} vs. {x_axis}',
         # Password is incorrect, show an error message
         st.error('Invalid password. Access denied.')
 
+def tab5():
+    st.header("Building Predictive Models with Plotly")
+
+    password_input = st.text_input('Enter Password', type='password')
+    if authenticate(password_input):
+
+        np.random.seed(42)
+        x = np.arange(1, 11)
+        y = 2 * x + 3 + np.random.randn(10)
+
+        st.subheader("Linear Regression Example:")
+        st.write("Let's consider a simple linear regression example using the following data:")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("X (Independent Variable):", x)
+        with col2:    
+            st.write("Y (Dependent Variable):", y)
+
+        fig_data = go.Figure()
+        fig_data.add_trace(go.Scatter(x=x, y=y, mode='markers', name='Data Points'))
+        fig_data.update_layout(title='Data Points for Linear Regression',
+                            xaxis_title='X (Independent Variable)',
+                            yaxis_title='Y (Dependent Variable)')
+
+        with col1:
+            st.plotly_chart(fig_data)
+
+        model = LinearRegression()
+        x_reshaped = x.reshape(-1, 1)
+        model.fit(x_reshaped, y)
+        y_pred = model.predict(x_reshaped)
+
+        fig_regression = go.Figure()
+        fig_regression.add_trace(go.Scatter(x=x, y=y, mode='markers', name='Data Points'))
+        fig_regression.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name='Regression Line', line=dict(color='red')))
+        fig_regression.update_layout(title='Linear Regression',
+                                    xaxis_title='X (Independent Variable)',
+                                    yaxis_title='Y (Dependent Variable)')
+
+        with col2:
+            st.plotly_chart(fig_regression)
+
+        st.subheader("Interpreting the Results:")
+        st.write("In linear regression, we try to fit a line to the data points to predict the relationship between X and Y.")
+        st.write("The red line in the plot above is the regression line that best fits the data points.")
+        st.write("We can use this line to make predictions for Y given new values of X.")
+
+        st.subheader("Python Code for Linear Regression:")
+        code = """
+import numpy as np
+from sklearn.linear_model import LinearRegression
+
+# Sample data for linear regression example
+x = np.arange(1, 11)
+y = 2 * x + 3 + np.random.randn(10)
+
+# Perform linear regression and get the predicted values
+model = LinearRegression()
+x_reshaped = x.reshape(-1, 1)
+model.fit(x_reshaped, y)
+y_pred = model.predict(x_reshaped)
+"""
+        st.code(code)
+    else:
+        # Password is incorrect, show an error message
+        st.error('Invalid password. Access denied.')
+
+
 def main():
     st.set_page_config(page_title="Economic Simulator and Python Coding Tutor", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "Simulate", "Learn", "Customize"]
+    tabs = ["Intro", "Simulate", "Learn about plotly usage", "Building custom plots", "Building Predictive Models"]
 
     with st.sidebar:
 
@@ -317,8 +387,9 @@ def main():
     tab_functions = {
     "Intro": tab1,
     "Simulate": tab2,
-    "Learn": tab3,
-    "Customize": tab4,
+    "Learn about plotly usage": tab3,
+    "Building custom plots": tab4,
+    "Building Predictive Models": tab5,
     }
 
     if current_tab in tab_functions:
