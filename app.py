@@ -129,7 +129,7 @@ def tab3():
         gdp = [12500, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
         unemployment_rate = [8.3, 7.9, 7.2, 6.8, 6.1, 5.6, 5.2, 4.8, 4.3, 4.1, 3.9, 3.7]
 
-        st.subheader("Economy: GDP over the Years")
+        st.subheader("Example: GDP over the Years")
         st.write("Below is a plot showing the GDP growth over the years.")
         
         # Plotting GDP over the years using Plotly
@@ -169,7 +169,7 @@ st.plotly_chart(fig_gdp)
         # Display the plot
         st.plotly_chart(fig_gdp)
 
-        st.subheader("Economy: Unemployment Rate over the Years")
+        st.subheader("Example: Unemployment Rate over the Years")
         st.write("Below is a plot showing the unemployment rate over the years.")
         
         # Plotting unemployment rate over the years using Plotly
@@ -238,13 +238,16 @@ def tab4():
         example_y_values = [12500, 13000, 14000, 15000, 16000, 17000]
 
         st.subheader("Customize Your Plot:")
-        x_axis = st.text_input("Enter X-axis title:", "Years")
-        y_axis = st.text_input("Enter Y-axis title:", "GDP")
-        chart_type = st.selectbox("Choose Chart Type:", ["Scatter", "Line", "Bar"])
-        line_mode = st.selectbox("Choose Line Mode:", ["lines", "lines+markers", "markers"])
-        plot_color = st.color_picker("Choose Plot Color:", "#1f77b4")
-        x_values = st.text_area("Enter X-axis values (comma-separated):", ", ".join(map(str, example_x_values)))
-        y_values = st.text_area("Enter Y-axis values (comma-separated):", ", ".join(map(str, example_y_values)))
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            x_axis = st.text_input("Enter X-axis title:", "Years")
+            y_axis = st.text_input("Enter Y-axis title:", "GDP")
+            chart_type = st.selectbox("Choose Chart Type:", ["Scatter", "Line", "Bar"])
+            line_mode = st.selectbox("Choose Line Mode:", ["lines", "lines+markers", "markers"])
+            plot_color = st.color_picker("Choose Plot Color:", "#1f77b4")
+        with col2:
+            x_values = st.text_area("Enter X-axis values (comma-separated):", ", ".join(map(str, example_x_values)))
+            y_values = st.text_area("Enter Y-axis values (comma-separated):", ", ".join(map(str, example_y_values)))
 
         try:
             x_values = [float(x.strip()) for x in x_values.split(",")]
