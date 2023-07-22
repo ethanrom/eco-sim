@@ -129,7 +129,7 @@ def tab3():
         gdp = [12500, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
         unemployment_rate = [8.3, 7.9, 7.2, 6.8, 6.1, 5.6, 5.2, 4.8, 4.3, 4.1, 3.9, 3.7]
 
-        st.subheader("Example: GDP over the Years")
+        st.subheader("Economy: GDP over the Years")
         st.write("Below is a plot showing the GDP growth over the years.")
         
         # Plotting GDP over the years using Plotly
@@ -169,7 +169,7 @@ st.plotly_chart(fig_gdp)
         # Display the plot
         st.plotly_chart(fig_gdp)
 
-        st.subheader("Example: Unemployment Rate over the Years")
+        st.subheader("Economy: Unemployment Rate over the Years")
         st.write("Below is a plot showing the unemployment rate over the years.")
         
         # Plotting unemployment rate over the years using Plotly
@@ -227,9 +227,85 @@ st.plotly_chart(fig_unemployment)
         # Password is incorrect, show an error message
         st.error('Invalid password. Access denied.')
 
+
+def tab4():
+    st.header("Customizable Plot with Plotly")
+
+    password_input = st.text_input('Enter Password', type='password')
+    if authenticate(password_input):
+
+        example_x_values = [2010, 2011, 2012, 2013, 2014, 2015]
+        example_y_values = [12500, 13000, 14000, 15000, 16000, 17000]
+
+        st.subheader("Customize Your Plot:")
+        x_axis = st.text_input("Enter X-axis title:", "Years")
+        y_axis = st.text_input("Enter Y-axis title:", "GDP")
+        chart_type = st.selectbox("Choose Chart Type:", ["Scatter", "Line", "Bar"])
+        line_mode = st.selectbox("Choose Line Mode:", ["lines", "lines+markers", "markers"])
+        plot_color = st.color_picker("Choose Plot Color:", "#1f77b4")
+        x_values = st.text_area("Enter X-axis values (comma-separated):", ", ".join(map(str, example_x_values)))
+        y_values = st.text_area("Enter Y-axis values (comma-separated):", ", ".join(map(str, example_y_values)))
+
+        try:
+            x_values = [float(x.strip()) for x in x_values.split(",")]
+            y_values = [float(y.strip()) for y in y_values.split(",")]
+        except ValueError:
+            st.error("Invalid input for x or y axis. Please enter valid numeric values.")
+
+        fig_custom = go.Figure()
+
+        if chart_type == "Scatter":
+            fig_custom.add_trace(go.Scatter(x=x_values, y=y_values, mode=line_mode, name=y_axis, marker_color=plot_color))
+        elif chart_type == "Line":
+            fig_custom.add_trace(go.Line(x=x_values, y=y_values, mode=line_mode, name=y_axis, line_color=plot_color))
+        elif chart_type == "Bar":
+            fig_custom.add_trace(go.Bar(x=x_values, y=y_values, name=y_axis, marker_color=plot_color))
+
+        fig_custom.update_layout(title=f"{y_axis} vs. {x_axis}",
+                                xaxis_title=x_axis,
+                                yaxis_title=y_axis)
+
+        st.subheader("Customized Plot:")
+        st.plotly_chart(fig_custom)
+
+        st.subheader("Python Code to Create the Customized Plot:")
+        code = f"""
+import plotly.graph_objects as go
+
+x_values = {x_values}
+y_values = {y_values}
+
+fig_custom = go.Figure()
+"""
+
+        if chart_type == "Scatter":
+            code += f"""
+fig_custom.add_trace(go.Scatter(x=x_values, y=y_values, mode='{line_mode}', name='{y_axis}', marker_color='{plot_color}'))
+"""
+        elif chart_type == "Line":
+            code += f"""
+fig_custom.add_trace(go.Line(x=x_values, y=y_values, mode='{line_mode}', name='{y_axis}', line_color='{plot_color}'))
+"""
+        elif chart_type == "Bar":
+            code += f"""
+fig_custom.add_trace(go.Bar(x=x_values, y=y_values, name='{y_axis}', marker_color='{plot_color}'))
+"""
+
+        code += f"""
+fig_custom.update_layout(title='{y_axis} vs. {x_axis}',
+                         xaxis_title='{x_axis}',
+                         yaxis_title='{y_axis}')
+"""
+
+        st.code(code)
+
+    else:
+        # Password is incorrect, show an error message
+        st.error('Invalid password. Access denied.')
+
 def main():
     st.set_page_config(page_title="Economic Simulator and Python Coding Tutor", page_icon=":memo:", layout="wide")
-    tabs = ["Intro", "Simulate", "Learn"]
+    tabs = ["Intro", "Simulate", "Learn", "Customize"]
 
     with st.sidebar:
 
@@ -239,6 +315,7 @@ def main():
     "Intro": tab1,
     "Simulate": tab2,
     "Learn": tab3,
+    "Customize": tab4,
     }
 
     if current_tab in tab_functions:
