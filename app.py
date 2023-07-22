@@ -1,6 +1,7 @@
 import streamlit as st
 import plotly.graph_objects as go
 import json
+import os
 import numpy as np
 from streamlit_option_menu import option_menu
 from markup import app_intro, how_use_intro
@@ -399,7 +400,14 @@ def tab6():
     password_input = st.text_input('Enter Password', type='password')
     if authenticate(password_input):
 
-        openai_api_key = st.text_input("Enter your OpenAI API key:")
+        openai_api_key = st.text_input("Enter your OpenAI API key:", type='password')
+
+        # Add the video display
+        video_file = "2023-07-22 19-52-10.mp4"
+        if os.path.exists(video_file):
+            st.video(video_file)
+        else:
+            st.warning("Video file not found.")
 
         main_question = st.text_area("Enter Information here:", height=400, value=default_text4)
         sub_question = st.text_area("Enter question here:", value=default_text5)
