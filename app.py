@@ -129,7 +129,7 @@ def tab3():
         gdp = [12500, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000, 21000, 22000, 23000]
         unemployment_rate = [8.3, 7.9, 7.2, 6.8, 6.1, 5.6, 5.2, 4.8, 4.3, 4.1, 3.9, 3.7]
 
-        st.subheader("Economy: GDP over the Years")
+        st.subheader("Example: GDP over the Years")
         st.write("Below is a plot showing the GDP growth over the years.")
         
         # Plotting GDP over the years using Plotly
@@ -169,7 +169,7 @@ st.plotly_chart(fig_gdp)
         # Display the plot
         st.plotly_chart(fig_gdp)
 
-        st.subheader("Economy: Unemployment Rate over the Years")
+        st.subheader("Example: Unemployment Rate over the Years")
         st.write("Below is a plot showing the unemployment rate over the years.")
         
         # Plotting unemployment rate over the years using Plotly
